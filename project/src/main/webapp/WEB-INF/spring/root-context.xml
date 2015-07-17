@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="mail" class="com.insat.ppp.Mail" />
+	<bean id="authProvider" class="com.insat.ppp.security.AuthProvider" >
+		<property name="dao" ref="personneDAO"/>
+	</bean>
+
+	<bean id="dataSource" 
+      class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+      <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+      <property name="url" value="jdbc:mysql://localhost:3306/database"/>
+      <property name="username" value="root"/>
+      <property name="password" value="root"/>
+   </bean>
+   
+   <bean id="personneDAO" class="com.insat.ppp.dao.PersonneDAO">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	
+	<bean id="demandeDAO" class="com.insat.ppp.dao.DemandeDAO">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	
+	<bean id="matiereDAO" class="com.insat.ppp.dao.MatiereDAO">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+</beans>

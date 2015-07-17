@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/webflow
+        http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd">
+		
+		
+		
+		<var name="demande" class="com.insat.ppp.model.Demande"/>
+		<var name="etudiant" class="com.insat.ppp.model.Etudiant"/>
+		<var name="dresume" class="com.insat.ppp.formulaire.DemandeResumé"/>
+		<var name="listeProf" class="com.insat.ppp.formulaire.ListeProfesseur"/>
+		<input name="id" />
+		<action-state id="preparerDemande">
+			<secured attributes="ROLE_ADMIN" match="any" />
+			<evaluate expression="demande=demandeDAO.get(id)"/>
+			<transition to="preparerEtudiant"/>
+		</action-state>
+		
+		<action-state id="preparerEtudiant">
+			<evaluate expression="etudiant=personneDAO.getEtudiant(demande.getCIN())"/>
+			<transition to="preparerResume"/>
+		</action-state>
+		
+		<action-state id="preparerResume">
+			<evaluate expression="dresume=demandeDAO.getResume( demande.getId() )"/>
+			<transition to="affichageDemande"/>
+		</action-state>
+		
+		<view-state id="affichageDemande" view="/WEB-INF/views/admin/affichageDemande.jsp">
+			<transition on="rejeter" to="rejeter"/>
+			<transition on="accepter" to="accepter"/>
+		</view-state>
+		
+		<action-state id="accepter">
+			<evaluate expression="listeProf.setListe(personneDAO.getProfByMatiere(demande.getMatiere()))"/>
+			<transition to="formulaire"/>
+		</action-state>
+		
+		<view-state id="formulaire" view="/WEB-INF/views/admin/formulaireDemande.jsp" model="demande" >
+			<transition to="ajouterProf1"/>
+		</view-state>
+		
+		<action-state id="ajouterProf1">
+			<evaluate expression="demandeDAO.setValue(demande.getId(),&quot;prof1&quot;,demande.getProf1())"/>
+			<transition to="ajouterProf2"/>
+		</action-state>
+		
+		<action-state id="ajouterProf2">
+			<evaluate expression="demandeDAO.setValue(demande.getId(),&quot;prof2&quot;,demande.getProf2())"/>
+			<transition to="ajouterNote"/>
+		</action-state>
+		
+		<action-state id="ajouterNote">
+			<evaluate expression="demandeDAO.setValue(demande.getId(),&quot;Note1&quot;,demande.getNote1())"/>
+			<transition to="incrementer"/>
+		</action-state>
+		
+		<action-state id="incrementer">
+			<evaluate expression="personneDAO.incrementProf(demande.getProf2())"/>
+			<transition to="valider"/>
+		</action-state>
+		
+		<action-state id="valider">
+			<evaluate expression="demandeDAO.setValue(demande.getId(),&quot;etat&quot;,1)"/>
+			<transition to="terminé"/>
+		</action-state>
+		
+		<action-state id="rejeter">
+			<evaluate expression="demandeDAO.setValue(demande.getId(),&quot;etat&quot;,-1)"/>
+			<transition to="terminé"/>
+		</action-state>
+		
+		<end-state id="terminé" view="flowRedirect:affichageDemande" />
+
+</flow>

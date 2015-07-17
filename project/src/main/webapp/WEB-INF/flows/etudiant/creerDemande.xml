@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/webflow
+        http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd">
+		
+		
+		<var name="demande" class="com.insat.ppp.model.Demande"/>
+		<var name="choixMatiere" class="com.insat.ppp.formulaire.ListeMatiere"/>
+		
+		
+		<!-- Display the login page -->
+		<action-state id="preparerMatiere">
+			<secured attributes="ROLE_ETUDIANT" match="any" />
+			<evaluate expression="choixMatiere.setListe(matiereDAO.get(currentUser.getPrincipal().getCIN()))"/>
+			<transition to="afficherFormulaire"/>
+		</action-state>
+		
+		<view-state id="afficherFormulaire" view="/WEB-INF/views/etudiant/formulaireDemande.jsp" model="demande">
+			<transition on="formulaireDemandeRempli" to="ajouterCIN"/>
+		</view-state>
+		
+		<action-state id="ajouterCIN">
+			<evaluate expression="demande.setCIN(currentUser.getPrincipal().getCIN())" />
+			<transition to="enregistrerDemande"/>
+		</action-state>
+		
+		<action-state id="enregistrerDemande">
+			<evaluate expression="demandeDAO.add(demande)" />
+			<transition to="terminé"/>
+		</action-state>
+		
+		<view-state id="terminé" view="/WEB-INF/views/home.jsp"/>
+
+</flow>

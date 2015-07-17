@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:flow="http://www.springframework.org/schema/webflow-config"
+	xsi:schemaLocation="http://www.springframework.org/schema/webflow-config
+						http://www.springframework.org/schema/webflow-config/spring-webflow-config-2.0.xsd
+						http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+	<bean class="org.springframework.webflow.mvc.servlet.FlowHandlerMapping">
+		<property name="flowRegistry" ref="FlowRegistry" />
+	</bean>
+	
+	<!-- Define FlowHandlerAdapter to handle Spring Web Flow request call.
+			This is the Controller class in Spring Web Flow -->
+	<bean class="org.springframework.webflow.mvc.servlet.FlowHandlerAdapter">
+		<property name="flowExecutor" ref="FlowExecutor" />
+	</bean>
+	
+	<!-- Define the flow executor responsible for executing login web flow -->
+	<flow:flow-executor id="FlowExecutor" flow-registry="FlowRegistry">
+		<flow:flow-execution-listeners>
+			<flow:listener ref="securityFlowExecutionListener" />
+		</flow:flow-execution-listeners>
+	</flow:flow-executor>
+
+	<!-- Define the registry that holds references to all the flow related XML 
+		configuration -->
+	<flow:flow-registry id="FlowRegistry">
+		<flow:flow-location id="demande" path="/WEB-INF/flows/etudiant/creerDemande.xml" />
+		<flow:flow-location id="affichageDemande" path="/WEB-INF/flows/admin/afficherDemande.xml"/>
+		<flow:flow-location id="affichageCorrection" path="/WEB-INF/flows/admin/afficherCorrection.xml"/>
+		<flow:flow-location id="listeDemandeProf" path="/WEB-INF/flows/prof/listeDemandeProf.xml"/>
+		<flow:flow-location id="listeRapportProf" path="/WEB-INF/flows/prof/listeRapportProf.xml"/>
+		<flow:flow-location id="corrigerDevoir" path="/WEB-INF/flows/prof/corrigerDevoir.xml"/>
+		<flow:flow-location id="redigerRapport" path="/WEB-INF/flows/prof/redigerRapport.xml"/>
+		<flow:flow-location id="traiterDemande" path="/WEB-INF/flows/admin/traiterDemande.xml"/>
+		<flow:flow-location id="validerCorrection" path="/WEB-INF/flows/admin/validerCorrection.xml"/>
+		<flow:flow-location id="validerRapport" path="/WEB-INF/flows/conseil/validerRapport.xml"/>
+		<flow:flow-location id="listeRapportConseil" path="/WEB-INF/flows/conseil/listeRapportConseil.xml"/>
+	</flow:flow-registry>
+
+
+	<bean id="securityFlowExecutionListener"
+		class="org.springframework.webflow.security.SecurityFlowExecutionListener" />
+
+
+</beans>

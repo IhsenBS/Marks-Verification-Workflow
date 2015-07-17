@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/webflow
+        http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd">
+		
+		
+		
+		<var name="demande" class="com.insat.ppp.model.Demande"/>
+		<var name="dresume" class="com.insat.ppp.formulaire.DemandeResumé"/>
+		<input name="id" />
+		<action-state id="preparerDemande">
+			<secured attributes="ROLE_CONSEIL" match="any" />
+			<evaluate expression="demande=demandeDAO.get(id)"/>
+			<transition to="preparerResume"/>
+		</action-state>
+		
+		<action-state id="preparerResume">
+			<evaluate expression="dresume=demandeDAO.getResume( demande.getId() )"/>
+			<transition to="affichageDemande"/>
+		</action-state>
+		
+		<view-state id="affichageDemande" view="/WEB-INF/views/conseil/validerRapport.jsp">
+			<transition on="rejeter" to="rejeter"/>
+			<transition on="accepter" to="accepter"/>
+		</view-state>
+		
+		<action-state id="accepter">
+			<evaluate expression="demandeDAO.setValue(demande.getId(),&quot;etat&quot;,5)"/>
+			<transition to="terminé"/>
+		</action-state>
+		
+		<action-state id="rejeter">
+			<evaluate expression="demandeDAO.setValue(demande.getId(),&quot;etat&quot;,-1)"/>
+			<transition to="terminé"/>
+		</action-state>
+		
+		<end-state id="terminé" view="flowRedirect:listeRapportConseil" />
+
+</flow>
